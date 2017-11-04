@@ -9,6 +9,7 @@ from flask_user import current_user, login_required, roles_accepted
 from datetime import datetime
 import time
 import pyowm
+from os import environ
 
 from app import db
 from app.models.user_models import UserProfileForm
@@ -23,8 +24,8 @@ main_blueprint = Blueprint('main', __name__, template_folder='templates')
 def home_page():
     name = current_user.first_name
     now = datetime.now()
-    API = "c0622a2f83cc4ad99dcce7a500543def"
-    return render_template('pages/persona.html', name = name, time = now.second)
+    API = environ.get('GOOGLE_API_KEY')
+    return render_template('pages/persona.html', google_api_key=API)
 
 
 # The User page is accessible to authenticated users (users that have logged in)
