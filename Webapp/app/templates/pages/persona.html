@@ -14,11 +14,12 @@
            padding: 0px;
        }
 
-        .header {
+        .section {
             width: 800px;
             margin-left: auto;
             margin-right: auto;
             height: 170px;
+            margin-bottom: 50px;
             border-radius: 5px;
             background-color: transparent;
         }
@@ -33,7 +34,6 @@
             font-weight: 300;
             margin-left: auto;
             margin-right: auto;
-
         }
 
         .desc {
@@ -75,6 +75,20 @@
             text-decoration: none;
             padding: 7px; border-radius: 5%;
         }
+
+        #schedule-section {
+            background-color: #3FC380;
+        }
+
+        #schedule-text {
+            padding-top: 5px;
+           font-size: 20px;
+        }
+
+        .ggl {
+            float: right;
+            font-size: 12px;
+        }
     </style>
     <body>
         <a class="signout mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
@@ -82,19 +96,47 @@
             Sign out
         </a>
         <div class="title">Persona</div>
-        <div class="header">
+
+        <div class="section" id="weather-section">
             <div class="desc">
                 <div class="feature-text" id="weather-text">
                     <div class="sub-title">
-                        Weather
+                        <span style="display: inline-block;">Weather</span>
+                        <span style="display: inline-block; float: right;" id="weatherloc"></span>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="section" id="schedule-section">
+            <div class="clock">
+              <div class="center"></div>
+              <div class="hour"></div>
+              <div class="minute"></div>
+              <div class="second"></div>
+            </div>
+            <div class="desc">
+                <div class="feature-text" id="schedule-text">
+                    <div class="sub-title">
+                        <span style="display: inline-block;">Schedule</span>
+                        <button class="ggl mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="authorize-button" style="display: none;">Connect Google Calendar</button>
+                        <button class="ggl mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="signout-button" style="display: none;">Disconnect Google Calendar</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    <!--Add buttons to initiate auth sequence and sign out-->
+
+
+    <pre id="content"></pre>
+
     </body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script>
-        var icons = {
+    <script type="text/javascript">
+
+
+                var icons = {
                         "sun-shower" : "<div class='icon sun-shower'> \
                                           <div class='cloud'></div> \
                                           <div class='sun'> \
@@ -180,8 +222,8 @@
                     pbk = '#343434';
                     break;
             }
-            $('.header').append(markup);
-            $('.header').css('background-color', bk);
+            $('#weather-section').append(markup);
+            $('#weather-section').css('background-color', bk);
             $('body').css('background-color', pbk);
             inter = "";
             if (needsInter.indexOf(current.weather[0].description) != -1) {
@@ -205,6 +247,7 @@
                 }
             }
             desc = desc + future_pr;
+            console.log(desc);
             $('#weather-text').append(desc);
         }
         if ("geolocation" in navigator) {
@@ -218,16 +261,170 @@
                        var current = res.list[0];
                        var next = res.list[1];
                        var future = res.list[2];
-                       console.log(res);
-                       console.log(current.dt_txt, current.weather[0]);
-                       console.log(next.dt_txt, next.weather[0]);
-                       console.log(future.dt_txt, future.weather[0]);
                        $('.header').append(setWeather(current, next, future));
                     }
                 );
             });
         } else {
-          alert("Location data not available.")
+          alert("Location data not available.");
         }
+
+      // Client ID and API key from the Developer Console
+      var CLIENT_ID = '736749291290-i2g92q3cvpicpuo0pug4qa3a9j9nj2ud.apps.googleusercontent.com';
+
+      // Array of API discovery doc URLs for APIs used by the quickstart
+      var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
+
+      // Authorization scopes required by the API; multiple scopes can be
+      // included, separated by spaces.
+      var SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
+
+      var authorizeButton = document.getElementById('authorize-button');
+      var signoutButton = document.getElementById('signout-button');
+
+      /**
+       *  On load, called to load the auth2 library and API client library.
+       */
+      function handleClientLoad() {
+        gapi.load('client:auth2', initClient);
+      }
+
+      /**
+       *  Initializes the API client library and sets up sign-in state
+       *  listeners.
+       */
+      function initClient() {
+        gapi.client.init({
+          discoveryDocs: DISCOVERY_DOCS,
+          clientId: CLIENT_ID,
+          scope: SCOPES
+        }).then(function () {
+          // Listen for sign-in state changes.
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+          // Handle the initial sign-in state.
+          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+          authorizeButton.onclick = handleAuthClick;
+          signoutButton.onclick = handleSignoutClick;
+        });
+      }
+
+      /**
+       *  Called when the signed in status changes, to update the UI
+       *  appropriately. After a sign-in, the API is called.
+       */
+      function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+          authorizeButton.style.display = 'none';
+          signoutButton.style.display = 'inline-block';
+          listUpcomingEvents();
+        } else {
+          authorizeButton.style.display = 'inline-block';
+          signoutButton.style.display = 'none';
+        }
+      }
+
+      /**
+       *  Sign in the user upon button click.
+       */
+      function handleAuthClick(event) {
+        gapi.auth2.getAuthInstance().signIn();
+      }
+
+      /**
+       *  Sign out the user upon button click.
+       */
+      function handleSignoutClick(event) {
+        gapi.auth2.getAuthInstance().signOut();
+      }
+
+      /**
+       * Append a pre element to the body containing the given message
+       * as its text node. Used to display the results of the API call.
+       *
+       * @param {string} message Text to be placed in pre element.
+       */
+
+      /**
+       * Print the summary and start datetime/date of the next ten events in
+       * the authorized user's calendar. If no events are found an
+       * appropriate message is printed.
+       */
+      function listUpcomingEvents() {
+        gapi.client.calendar.events.list({
+          'calendarId': 'primary',
+          'timeMin': (new Date()).toISOString(),
+          'showDeleted': false,
+          'singleEvents': true,
+          'maxResults': 10,
+          'orderBy': 'startTime'
+        }).then(function(response) {
+          var events = response.result.items;
+          if (events.length > 0) {
+            var next = events[0];
+            setupCalendar(next);
+          } else {
+            $('#schedule-text').append("You don't have anything coming up soon.");
+          }
+        });
+      }
+
+    function formatAMPM(date) {
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        var ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        minutes = minutes < 10 ? '0'+minutes : minutes;
+        var strTime = hours + ':' + minutes + ' ' + ampm;
+        return strTime;
+    }
+
+      function setupCalendar(next) {
+          console.log(next);
+          var text = "";
+          var today = new Date();
+          var appt = new Date(next.start.dateTime);
+          console.log();
+          if (Math.round((new Date(appt).setHours(0,0,0,0)-  new Date(today).setHours(0,0,0,0))/(1000*60*60*24)) < 2) {
+              text += "Your next event is " + next.summary;
+              if (new Date(appt).setHours(0,0,0,0) == new Date(today).setHours(0,0,0,0)) {
+                  text += " today at " + formatAMPM(appt) + ". ";
+              } else {
+                  text += " tomorrow at " + formatAMPM(appt) + ". ";
+              }
+              var minutesTD = Math.round(Math.round(appt - today)/(1000*60));
+              if (minutesTD <= 15) {
+                  text += "You've got about 15 minutes";
+              } else if (minutesTD >= 15 && minutesTD <= 25) {
+                  text += "You have a little under half an hour ";
+              } else if (minutesTD >= 25 && minutesTD <= 45) {
+                  text += "You have about half an hour ";
+              } else if (minutesTD > 45 && minutesTD < 75) {
+                  text += "You have about an hour ";
+              } else if (minutesTD >= 75 && minutesTD < 300) {
+                  text += "You have about " + (Math.round(minutesTD/6)/10).toString() + " hours ";
+              } else if (minutesTD >= 300) {
+                  text += "You have plenty of time ";
+              }
+              if (next.location != null) {
+                  text += "to get to: " + next.location;
+              }  else {
+                  text += "to get to your event.";
+              }
+          } else {
+              text = "You don't have anything coming up soon.";
+          }
+          $('#schedule-text').append(text);
+      }
+
+    </script>
+
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="console.log('done');this.onload=function(){};handleClientLoad()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()"; />
+
+    <script>
+
     </script>
 </html>

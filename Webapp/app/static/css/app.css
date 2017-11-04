@@ -11,3 +11,20 @@ hr { border-color: #cccccc; margin: 0px; }
 .with-margins { margin: 10px; }
 
 .col-centered { float: none; margin: 0 auto; }
+
+.title {
+    padding-top: 50px;
+    padding-bottom: 45px;
+    font-size: 48px;
+    width: 100%;
+    text-align: center;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 300;
+    margin-left: auto;
+    margin-right: auto;
+    color: #FFF;
+}
+
+body {
+    min-height: 5px !important;
+}

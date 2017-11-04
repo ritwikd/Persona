@@ -15,14 +15,6 @@
             <div class="col-xs-6">
                 <label for="{{ field.id }}" class="control-label">{{ field.label.text }}</label>
             </div>
-            <div class="col-xs-6 text-right">
-                {% if user_manager.enable_register %}
-                    <a class="mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
-                       style  = "padding: 7px; border-radius: 5%;"
-                       href="{{ url_for('user.login') }}" tabindex='290'>
-                        {%trans%}Sign in.{%endtrans%}</a>
-                {% endif %}
-            </div>
         </div>
         <div class="mdl-textfield mdl-js-textfield" style="padding-top: 5px; padding-bottom: 5px;">
             <input class="mdl-textfield__input" id="email" name="email" tabindex="210" type="text" value="">
