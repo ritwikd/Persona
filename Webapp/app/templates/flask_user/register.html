@@ -1,0 +1,97 @@
+{% extends 'flask_user/public_base.html' %}
+
+{% block content %}
+{% from "flask_user/_macros.html" import render_field, render_submit_field %}
+
+<form action="" method="POST" novalidate formnovalidate class="form" role="form"
+    style="background-color: #EFEFEF; padding: 25px; border-radius: 1%;">
+    {{ form.hidden_tag() }}
+
+    {# Username or Email #}
+    {% set field = form.username if user_manager.enable_username else form.email %}
+    <div class="form-group {% if field.errors %}has-error{% endif %}">
+        {# Label on left, "Already registered? Sign in." on right #}
+        <div class="row">
+            <div class="col-xs-6">
+                <label for="{{ field.id }}" class="control-label">{{ field.label.text }}</label>
+            </div>
+            <div class="col-xs-6 text-right">
+                {% if user_manager.enable_register %}
+                    <a class="mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+                       style  = "padding: 7px; border-radius: 5%;"
+                       href="{{ url_for('user.login') }}" tabindex='290'>
+                        {%trans%}Sign in.{%endtrans%}</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield" style="padding-top: 5px; padding-bottom: 5px;">
+            <input class="mdl-textfield__input" id="email" name="email" tabindex="210" type="text" value="">
+        </div>
+        {% if field.errors %}
+            {% for e in field.errors %}
+                <p class="help-block">{{ e }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    {% if user_manager.enable_email and user_manager.enable_username %}
+        <div class="mdl-textfield mdl-js-textfield" style="padding-top: 0px;">
+            <input class="mdl-textfield__input" id="email" name="email" tabindex="210" type="text" value="">
+            <label class="mdl-textfield__label" for="email"></label>
+        </div>
+    {% endif %}
+
+    <div class="form-group">
+        <div class="row">
+            <div class="col-xs-6 text-left">
+                <label for="first_name" class="control-label">First Name</label>
+            </div>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield" style="padding-top: 5px; padding-bottom: 5px;">
+                <input class="mdl-textfield__input" id="first_name" name="first_name" tabindex="240" type="text" value="">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row">
+            <div class="col-xs-6 text-left">
+                <label for="last_name" class="control-label">Last Name</label>
+            </div>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield" style="padding-top: 5px; padding-bottom: 5px;">
+                <input class="mdl-textfield__input" id="last_name" name="last_name" tabindex="250" type="text" value="">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row">
+            <div class="col-xs-6 text-left">
+                <label for="password" class="control-label">Password</label>
+            </div>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield" style="padding-top: 5px; padding-bottom: 5px;">
+                <input class="mdl-textfield__input" id="password" name="password" tabindex="260" type="password" value="">
+        </div>
+    </div>
+
+    {% if user_manager.enable_retype_password %}
+        <div class="form-group">
+            <div class="row">
+                <div class="col-xs-6 text-left">
+                    <label for="retype_password" class="control-label">Confirm Password</label>
+                </div>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield" style="padding-top: 5px; padding-bottom: 5px;">
+                    <input class="mdl-textfield__input" id="retype_password" name="retype_password" tabindex="270" type="password" value="">
+            </div>
+        </div>
+    {% endif %}
+
+    <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+        value="Register" tabindex="280">
+        Register
+    </button>
+
+</form>
+
+{% endblock %}

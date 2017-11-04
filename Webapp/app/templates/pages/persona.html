@@ -1,0 +1,196 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-blue.min.css" />
+        <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,700" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/weather.css') }}">
+        <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    </head>
+    <style>
+       body {
+           background-color: #343434;
+           color: #FFF;
+           margin: 0px;
+           padding: 0px;
+       }
+
+        .header {
+            width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 170px;
+            border-radius: 5px;
+            background-color: transparent;
+        }
+
+        .title {
+            padding-top: 50px;
+            padding-bottom: 45px;
+            font-size: 48px;
+            width: 100%;
+            text-align: center;
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 300;
+            margin-left: auto;
+            margin-right: auto;
+
+        }
+
+        .desc {
+            width: 72%;
+            float:right;
+            height: 100%;
+            background-color: #EFEFEF;
+            border-radius: 0px 5px 5px 0px;
+        }
+
+        .weather-text {
+            padding: 20px;
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 400;
+            font-size: 28px;
+            color: #333;
+            line-height: 1.25;
+        }
+
+        .icon {
+            margin-left: 30px;
+            height: 170px;
+        }
+    </style>
+    <body>
+        <div class="title">Persona</div>
+        <div class="header">
+            <div class="desc">
+                <div class="weather-text">
+                </div>
+            </div>
+        </div>
+    </body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script>
+        var icons = {
+                        "sun-shower" : "<div class='icon sun-shower'> \
+                                          <div class='cloud'></div> \
+                                          <div class='sun'> \
+                                            <div class='rays'></div> \
+                                          </div> \
+                                          <div class='rain'></div> \
+                                        </div>",
+                          "thunder" : "<div class='icon thunder-storm'>\
+                                        <div class='cloud'></div>\
+                                        <div class='lightning'>\
+                                          <div class='bolt'></div>\
+                                          <div class='bolt'></div>\
+                                        </div>\
+                                      </div>",
+                          "clouds" : "<div class='icon cloudy'>\
+                                        <div class='cloud'></div>\
+                                        <div class='cloud'></div>\
+                                      </div>",
+                          "snow" :  "<div class='icon flurries'>\
+                                        <div class='cloud'></div>\
+                                        <div class='snow'>\
+                                          <div class='flake'></div>\
+                                          <div class='flake'></div>\
+                                        </div>\
+                                      </div>",
+                          "sunny" :   "<div class='icon sunny'>\
+                                        <div class='sun'>\
+                                          <div class='rays'></div>\
+                                        </div>\
+                                      </div>",
+                          "rain" : "<div class='icon rainy'>\
+                                  <div class='cloud'></div>\
+                                  <div class='rain'></div>\
+                                </div>"
+        };
+
+        var needsInter = [
+            'tornado', 'clear sky', 'tropical storm', 'hurricane',
+            'few clouds', "thunderstorm with light rain", "thunderstorm with rain",
+            "thunderstorm with heavy rain", "light thunderstorm",  "thunderstorm",
+            "heavy thunderstorm", "ragged thunderstorm", "thunderstorm with light drizzle",
+            "thunderstorm with drizzle", "thunderstorm with heavy drizzle",
+            "storm", "violent storm"
+        ];
+
+
+        function setWeather(weather) {
+            var pref = [
+                "Right now, there's ",
+                "If you look out the window, you'll see "
+            ];
+            var markup, bk, pbk;
+            switch(weather.weather[0].main) {
+                case "Clear":
+                    markup = icons['sunny'];
+                    bk = '#59ABE3';
+                    pbk = '#3A539B';
+                    break;
+                case "Clouds":
+
+                    markup = icons['clouds'];
+                    bk = '#59ABE3';
+                    pbk = '#3A539B';
+                    if (weather.weather[0].description.indexOf('overcast' ) != -1) {
+                        bk = '#95A5A6';
+                        pbk = '#343434';
+                    }
+                    break;
+                case "Rain":
+                    markup = icons['rain'];
+                    bk = '#95A5A6';
+                    pbk = '#343434';
+                    break;
+                case "Thunder":
+                    markup = icons['thunder'];
+                    bk = '#95A5A6';
+                    pbk = '#343434';
+                    break;
+                case "Snow":
+                    markup = icons['snow'];
+                    bk = '#6C7A89';
+                    pbk = '#343434';
+                    break;
+                case "Mist":
+                    markup = icons['rain'];
+                    bk = '#95A5A6';
+                    pbk = '#343434';
+                    break;
+            }
+            $('.header').append(markup);
+            $('.header').css('background-color', bk);
+            $('body').css('background-color', pbk);
+            inter = "";
+            if (needsInter.indexOf(weather.weather[0].description) != -1) {
+                inter = "a ";
+            }
+            var desc = pref[Math.floor(Math.random() * pref.length)]
+                + inter + weather.weather[0].description + '.';
+            $('.weather-text').text(desc);
+        }
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var lat = Math.trunc(position.coords.latitude);
+                var long =  Math.trunc(position.coords.longitude);
+                var w = $.get(
+                   "http://api.openweathermap.org/data/2.5/forecast?lat=" + lat.toString()
+                    + "&lon=" + long.toString() + "&appid=c0622a2f83cc4ad99dcce7a500543def&units=imperial",
+                    success = function(res) {
+                       var current = res.list[0];
+                       var next = res.list[1];
+                       var future = res.list[2];
+                       console.log(res);
+                       console.log(current.dt_txt, current.weather[0]);
+                       console.log(next.dt_txt, next.weather[0]);
+                       console.log(future.dt_txt, future.weather[0]);
+                       $('.header').append(setWeather(current));
+                    }
+                );
+            });
+        } else {
+          alert("Location data not available.")
+        }
+    </script>
+</html>
