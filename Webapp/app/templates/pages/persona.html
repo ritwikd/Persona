@@ -44,25 +44,50 @@
             border-radius: 0px 5px 5px 0px;
         }
 
-        .weather-text {
+        .sub-title {
+            font-weight: 500;
+            font-size: 26px;
+        }
+
+        .feature-text {
+            margin-left: auto;
+            margin-right: auto;
             padding: 20px;
+            padding-top: 10px;
+            padding-left: 30px;
+            padding-right: 40px;
             font-family: 'Work Sans', sans-serif;
             font-weight: 400;
-            font-size: 28px;
+            font-size: 24px;
             color: #333;
-            line-height: 1.25;
+            line-height: 1.5;
         }
 
         .icon {
             margin-left: 30px;
             height: 170px;
         }
+
+        .signout {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            text-decoration: none;
+            padding: 7px; border-radius: 5%;
+        }
     </style>
     <body>
+        <a class="signout mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+           href="{{ url_for('user.logout') }}">
+            Sign out
+        </a>
         <div class="title">Persona</div>
         <div class="header">
             <div class="desc">
-                <div class="weather-text">
+                <div class="feature-text" id="weather-text">
+                    <div class="sub-title">
+                        Weather
+                    </div>
                 </div>
             </div>
         </div>
@@ -116,13 +141,9 @@
         ];
 
 
-        function setWeather(weather) {
-            var pref = [
-                "Right now, there's ",
-                "If you look out the window, you'll see "
-            ];
+        function setWeather(current, next, future) {
             var markup, bk, pbk;
-            switch(weather.weather[0].main) {
+            switch(current.weather[0].main) {
                 case "Clear":
                     markup = icons['sunny'];
                     bk = '#59ABE3';
@@ -133,7 +154,7 @@
                     markup = icons['clouds'];
                     bk = '#59ABE3';
                     pbk = '#3A539B';
-                    if (weather.weather[0].description.indexOf('overcast' ) != -1) {
+                    if (current.weather[0].description.indexOf('overcast' ) != -1) {
                         bk = '#95A5A6';
                         pbk = '#343434';
                     }
@@ -163,12 +184,28 @@
             $('.header').css('background-color', bk);
             $('body').css('background-color', pbk);
             inter = "";
-            if (needsInter.indexOf(weather.weather[0].description) != -1) {
+            if (needsInter.indexOf(current.weather[0].description) != -1) {
                 inter = "a ";
             }
-            var desc = pref[Math.floor(Math.random() * pref.length)]
-                + inter + weather.weather[0].description + '.';
-            $('.weather-text').text(desc);
+            var desc = "Right now, there's " + inter +
+                current.weather[0].description + ".<br> It's " +
+               Math.round(current.main.temp).toString() + "° right now, and it will ";
+            var future_pr = "";
+            var ft = (next.main.temp + future.main.temp)/2;
+            var diff = ft - current.main.temp;
+            var adiff = Math.abs(diff);
+            if (adiff < 7) {
+                future_pr = " stay about the same for the next couple hours.";
+            } else {
+                future_pr = (10 * Math.round(adiff/10)).toString() + "° during the next couple hours.";
+                if (diff > 0) {
+                    future_pr = " heat up about " + future_pr;
+                } else {
+                    future_pr = " cool down about " + future_pr;
+                }
+            }
+            desc = desc + future_pr;
+            $('#weather-text').append(desc);
         }
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(function(position) {
@@ -185,7 +222,7 @@
                        console.log(current.dt_txt, current.weather[0]);
                        console.log(next.dt_txt, next.weather[0]);
                        console.log(future.dt_txt, future.weather[0]);
-                       $('.header').append(setWeather(current));
+                       $('.header').append(setWeather(current, next, future));
                     }
                 );
             });
