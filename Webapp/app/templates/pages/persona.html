@@ -89,6 +89,12 @@
             float: right;
             font-size: 12px;
         }
+
+        #weatherloc {
+            font-size: 20px;
+            margin-top: 5px;
+            font-weight: 700;
+        }
     </style>
     <body>
         <a class="signout mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
@@ -230,8 +236,9 @@
                 inter = "a ";
             }
             var desc = "Right now, there's " + inter +
-                current.weather[0].description + ".<br> It's " +
-               Math.round(current.main.temp).toString() + "° right now, and it will ";
+                "<span style='font-weight: 500;'>" + current.weather[0].description + "</span>.<br> It's " +
+               " <span style='font-weight: 500;'> " + Math.round(current.main.temp).toString() +
+                "°</span> right now, and it will ";
             var future_pr = "";
             var ft = (next.main.temp + future.main.temp)/2;
             var diff = ft - current.main.temp;
@@ -247,7 +254,6 @@
                 }
             }
             desc = desc + future_pr;
-            console.log(desc);
             $('#weather-text').append(desc);
         }
         if ("geolocation" in navigator) {
@@ -258,6 +264,8 @@
                    "http://api.openweathermap.org/data/2.5/forecast?lat=" + lat.toString()
                     + "&lon=" + long.toString() + "&appid=c0622a2f83cc4ad99dcce7a500543def&units=imperial",
                     success = function(res) {
+                       console.log(res);
+                       $('#weatherloc').text(res.city.name + ", " + res.city.country);
                        var current = res.list[0];
                        var next = res.list[1];
                        var future = res.list[2];
@@ -387,11 +395,11 @@
           var appt = new Date(next.start.dateTime);
           console.log();
           if (Math.round((new Date(appt).setHours(0,0,0,0)-  new Date(today).setHours(0,0,0,0))/(1000*60*60*24)) < 2) {
-              text += "Your next event is " + next.summary;
+              text += "Your next event is <span style='font-weight: 500;'>" + next.summary + "</span>";
               if (new Date(appt).setHours(0,0,0,0) == new Date(today).setHours(0,0,0,0)) {
-                  text += " today at " + formatAMPM(appt) + ". ";
+                  text += " today at <span style='font-weight: 500;'>" + formatAMPM(appt) + "</span>. ";
               } else {
-                  text += " tomorrow at " + formatAMPM(appt) + ". ";
+                  text += " tomorrow at <span style='font-weight: 500;'>" + formatAMPM(appt) + "</span>. ";
               }
               var minutesTD = Math.round(Math.round(appt - today)/(1000*60));
               if (minutesTD <= 15) {
@@ -408,7 +416,7 @@
                   text += "You have plenty of time ";
               }
               if (next.location != null) {
-                  text += "to get to: " + next.location;
+                  text += "to get to: <span style='font-weight: 500;'>" + next.location + '</span>.';
               }  else {
                   text += "to get to your event.";
               }
