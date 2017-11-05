@@ -261,7 +261,7 @@
                 var lat = Math.trunc(position.coords.latitude);
                 var long =  Math.trunc(position.coords.longitude);
                 var w = $.get(
-                   "http://api.openweathermap.org/data/2.5/forecast?lat=" + lat.toString()
+                   "https://api.openweathermap.org/data/2.5/forecast?lat=" + lat.toString()
                     + "&lon=" + long.toString() + "&appid=c0622a2f83cc4ad99dcce7a500543def&units=imperial",
                     success = function(res) {
                        console.log(res);

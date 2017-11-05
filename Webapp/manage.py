@@ -28,6 +28,6 @@ if __name__ == "__main__":
     # python manage.py runserver --help     # shows available runserver options
     #manager.run()
     app = create_app()
-    context = ('/etc/letsencrypt/live/vps.ritwikd.com/cert.pem', '/etc/letsencrypt/live/vps.ritwikd.com/privkey.pem')
+    context = ('/etc/letsencrypt/live/vps.ritwikd.com/fullchain.pem', '/etc/letsencrypt/live/vps.ritwikd.com/privkey.pem')
     app.run(host='0.0.0.0', port=eval(environ.get('PERSONA_PORT')),
             ssl_context=context)
